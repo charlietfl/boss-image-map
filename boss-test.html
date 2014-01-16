@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Canvas Area Draw</title>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome-ie7.css" rel="stylesheet">
+    <script language="javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="jquery.canvasAreaDraw.modified.js"></script>
+    <script src="jquery.maphilight.js"></script>
+    <style type="text/css">
+        body {
+            background: #a3a3a3
+        }
+
+        #panel_wrap {
+            position: relative
+        }
+
+        .boss-panel {
+            position: absolute;
+            left: -999em;
+            top: -999em;
+            width: 100%;
+            min-height: 600px;;
+        }
+
+        .boss-panel.current {
+            left: 0;
+            top: 0;
+        }
+        textarea{width: 100%}
+        map,area{z-index: 200}
+    </style>
+    <script>
+        var panels = {
+            panel_1: null,
+            panel_2: null,
+            panel_3: null,
+            panel_4: null,
+            panel_5: null,
+            panel_6: null
+        }
+
+
+        var panels = {
+            "panel_1":"199,94,227,91,446,184,414,224,198,131",
+            "panel_2":"198,150,196,249,371,305,498,289",
+            "panel_3":"199,254,202,295,366,306",
+            "panel_4":"196,253,196,290,70,273",
+            "panel_5":"196,154,197,250,58,276,29,260",
+            "panel_6": "52,197,70,178,54,180,39,194"
+        }
+
+        var img_url = "../seatbuilder/images/panels/Ac1mk_Base.png";
+        var active_panel = 1;
+        function changePanels(e) {
+
+            e.preventDefault();
+            var panel = parseInt($(this).data('panel'), 10);
+            $('.boss-panel.current').removeClass('current');
+            $('.boss-panel').eq((panel - 1)).addClass('current');
+            $('.active').removeClass('active');
+            $(this).parent().addClass('active');
+
+            if($(this).is('#view_results_link')){
+                createResultsImage();
+            }
+
+        }
+
+        function createResultsImage(){
+            var $results=$('#results');
+            var img='<img id="results_image" src="'+img_url+'" usemap="#map">';
+            var map='<map name="map">';
+            $.each(panels,function(k,v){
+                map+='<area shape="poly" href="#" coords="'+v+'"> '
+            })
+             map+='</map>';
+
+            $('#results').html(img+map);
+            $('#results_image').maphilight({alwaysOn:true});
+
+            //$('area').mouseover()
+        }
+
+        function initPanels() {
+            $('textarea.coord-data').each(function () {
+                var panelData = panels['panel_' + $(this).data('panel')];
+                console.log('panel_' + $(this).data('panel'))
+                $(this).val(panelData || '').data('image-url', img_url).canvasAreaDraw();
+
+                $(this).on('pointsUpdate', function (e) {
+                    var panelNum = $(this).data('panel')
+                    panels['panel_' + panelNum] = $(this).val();
+                    console.log(panels['panel_' + panelNum]);
+                })
+            })
+
+
+        }
+        $(function () {
+            var active_panel = 1;
+            initPanels()
+            //changePanels(1);
+            $('.panel-link').click(changePanels)
+        })
+    </script>
+</head>
+<body>
+<div id="main" class="container">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">Boss Panel Mapper</a>
+            <ul class="nav">
+                <li><a href="#">Home</a></li>
+                <li class="active"><a class="panel-link" data-panel="1" href="#">Panel 1</a></li>
+                <li><a class="panel-link" data-panel="2" href="#">Panel 2</a></li>
+                <li><a class="panel-link" data-panel="3" href="#">Panel 3</a></li>
+                <li><a class="panel-link" data-panel="4" href="#">Panel 4</a></li>
+                <li><a class="panel-link" data-panel="5" href="#">Panel 5</a></li>
+                <li><a class="panel-link" data-panel="6" href="#">Panel 6</a></li>
+                <li><a id="view_results_link" class="panel-link" data-panel="7" href="#">Full Image</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+
+        <div class="row">
+            <div>
+                <div id="panel_wrap">
+
+                    <div class="boss-panel current">
+                        <h3>Panel 1</h3>
+                        <textarea class="coord-data" data-panel="1"></textarea>
+                    </div>
+                    <div class="boss-panel">
+                        <h3>Panel 2</h3>
+                        <textarea class="coord-data" data-panel="2"></textarea>
+                    </div>
+                    <div class="boss-panel">
+                        <h3>Panel 3</h3>
+                        <textarea class="coord-data" data-panel="3"></textarea>
+                    </div>
+                    <div class="boss-panel">
+                        <h3>Panel 4</h3>
+                        <textarea class="coord-data" data-panel="4"></textarea>
+                    </div>
+                    <div class="boss-panel">
+                        <h3>Panel 5</h3>
+                        <textarea class="coord-data" data-panel="5"></textarea>
+                    </div>
+                    <div class="boss-panel">
+                        <h3>Panel 6</h3>
+                        <textarea class="coord-data" data-panel="6"></textarea>
+                    </div>
+                    <div class="boss-panel" data-panel="7" id="results">
+
+                        <img src="" usemap="#map">
+                        <map id="map"> </map>
+
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+</div>
+
+</body>
+</html>
